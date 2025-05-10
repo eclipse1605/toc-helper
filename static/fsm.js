@@ -1,4 +1,4 @@
-// Global variables and state
+
 let canvasState = {
     strokeColor: '#ffffff',
     fillColor: '#1e1e1e',
@@ -6,7 +6,7 @@ let canvasState = {
     accentColor: '#3498db'
 };
 
-// Mathematical utility functions
+
 function det(a, b, c, d, e, f, g, h, i) {
     return a*e*i + b*f*g + c*d*h - a*f*h - b*d*i - c*e*g;
 }
@@ -27,7 +27,7 @@ function fixed(number, digits) {
     return number.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '');
 }
 
-// FSM components
+
 function Link(a, b) {
     this.nodeA = a;
     this.nodeB = b;
@@ -103,7 +103,7 @@ Link.prototype.getEndPointsAndCircle = function() {
 
 Link.prototype.draw = function(c) {
 	var stuff = this.getEndPointsAndCircle();
-	// draw arc
+	
 	c.beginPath();
 	if(stuff.hasCircle) {
 		c.arc(stuff.circleX, stuff.circleY, stuff.circleRadius, stuff.startAngle, stuff.endAngle, stuff.isReversed);
@@ -112,13 +112,13 @@ Link.prototype.draw = function(c) {
 		c.lineTo(stuff.endX, stuff.endY);
 	}
 	c.stroke();
-	// draw the head of the arrow
+	
 	if(stuff.hasCircle) {
 		drawArrow(c, stuff.endX, stuff.endY, stuff.endAngle - stuff.reverseScale * (Math.PI / 2));
 	} else {
 		drawArrow(c, stuff.endX, stuff.endY, Math.atan2(stuff.endY - stuff.startY, stuff.endX - stuff.startX));
 	}
-	// draw the text
+	
 	if(stuff.hasCircle) {
 		var startAngle = stuff.startAngle;
 		var endAngle = stuff.endAngle;
@@ -235,10 +235,10 @@ SelfLink.prototype.setMouseStart = function(x, y) {
 
 SelfLink.prototype.setAnchorPoint = function(x, y) {
 	this.anchorAngle = Math.atan2(y - this.node.y, x - this.node.x) + this.mouseOffsetAngle;
-	// snap to 90 degrees
+	
 	var snap = Math.round(this.anchorAngle / (Math.PI / 2)) * (Math.PI / 2);
 	if(Math.abs(this.anchorAngle - snap) < 0.1) this.anchorAngle = snap;
-	// keep in the range -pi to pi so our containsPoint() function always works
+	
 	if(this.anchorAngle < -Math.PI) this.anchorAngle += 2 * Math.PI;
 	if(this.anchorAngle > Math.PI) this.anchorAngle -= 2 * Math.PI;
 };
@@ -269,15 +269,15 @@ SelfLink.prototype.getEndPointsAndCircle = function() {
 
 SelfLink.prototype.draw = function(c) {
 	var stuff = this.getEndPointsAndCircle();
-	// draw arc
+	
 	c.beginPath();
 	c.arc(stuff.circleX, stuff.circleY, stuff.circleRadius, stuff.startAngle, stuff.endAngle, false);
 	c.stroke();
-	// draw the text on the loop farthest from the node
+	
 	var textX = stuff.circleX + stuff.circleRadius * Math.cos(this.anchorAngle);
 	var textY = stuff.circleY + stuff.circleRadius * Math.sin(this.anchorAngle);
 	drawText(c, this.text, textX, textY, this.anchorAngle, selectedObject == this);
-	// draw the head of the arrow
+	
 	drawArrow(c, stuff.endX, stuff.endY, stuff.endAngle + Math.PI * 0.4);
 };
 
@@ -328,17 +328,17 @@ StartLink.prototype.getEndPoints = function() {
 StartLink.prototype.draw = function(c) {
 	var stuff = this.getEndPoints();
 
-	// draw the line
+	
 	c.beginPath();
 	c.moveTo(stuff.startX, stuff.startY);
 	c.lineTo(stuff.endX, stuff.endY);
 	c.stroke();
 
-	// draw the text at the end without the arrow
+	
 	var textAngle = Math.atan2(stuff.startY - stuff.endY, stuff.startX - stuff.endX);
 	drawText(c, this.text, stuff.startX, stuff.startY, textAngle, selectedObject == this);
 
-	// draw the head of the arrow
+	
 	drawArrow(c, stuff.endX, stuff.endY, Math.atan2(-this.deltaY, -this.deltaX));
 };
 
@@ -358,21 +358,21 @@ function TemporaryLink(from, to) {
 }
 
 TemporaryLink.prototype.draw = function(c) {
-	// draw the line
+	
 	c.beginPath();
 	c.moveTo(this.to.x, this.to.y);
 	c.lineTo(this.from.x, this.from.y);
 	c.stroke();
 
-	// draw the head of the arrow
+	
 	drawArrow(c, this.to.x, this.to.y, Math.atan2(this.to.y - this.from.y, this.to.x - this.from.x));
 };
 
-// draw using this instead of a canvas and call toLaTeX() afterward
+
 function ExportAsLaTeX() {
 	this._points = [];
 	this._texData = '';
-	this._scale = 0.1; // to convert pixels to document space (TikZ breaks if the numbers get too big, above 500?)
+	this._scale = 0.1; 
 
 	this.toLaTeX = function() {
 		return '\\documentclass[12pt]{article}\n' +
@@ -515,12 +515,12 @@ function ExportAsSVG() {
 			var goInPositiveDirection = 1;
 
 			this._svgData += '\t<path ' + style + ' d="';
-			this._svgData += 'M ' + fixed(startX, 3) + ',' + fixed(startY, 3) + ' '; // startPoint(startX, startY)
-			this._svgData += 'A ' + fixed(radius, 3) + ',' + fixed(radius, 3) + ' '; // radii(radius, radius)
-			this._svgData += '0 '; // value of 0 means perfect circle, others mean ellipse
+			this._svgData += 'M ' + fixed(startX, 3) + ',' + fixed(startY, 3) + ' '; 
+			this._svgData += 'A ' + fixed(radius, 3) + ',' + fixed(radius, 3) + ' '; 
+			this._svgData += '0 '; 
 			this._svgData += +useGreaterThan180 + ' ';
 			this._svgData += +goInPositiveDirection + ' ';
-			this._svgData += fixed(endX, 3) + ',' + fixed(endY, 3); // endPoint(endX, endY)
+			this._svgData += fixed(endX, 3) + ',' + fixed(endY, 3); 
 			this._svgData += '"/>\n';
 		}
 	};
@@ -612,17 +612,17 @@ function canvasHasFocus() {
 function drawText(c, originalText, x, y, angleOrNull, isSelected) {
 	text = convertLatexShortcuts(originalText);
 	
-	// Scale font size based on canvas size and node radius
+	
 	const fontSize = Math.max(12, Math.min(20, nodeRadius * 0.6));
 	c.font = fontSize + 'px "Times New Roman", serif';
 	c.fillStyle = canvasState.textColor;
 	
 	var width = c.measureText(text).width;
 
-	// center the text
+	
 	x -= width / 2;
 
-	// position the text intelligently if given an angle
+	
 	if(angleOrNull != null) {
 		var cos = Math.cos(angleOrNull);
 		var sin = Math.sin(angleOrNull);
@@ -633,7 +633,7 @@ function drawText(c, originalText, x, y, angleOrNull, isSelected) {
 		y += cornerPointY + cos * slide;
 	}
 
-	// draw text and caret (round the coordinates so the caret falls on a pixel)
+	
 	if('advancedFillText' in c) {
 		c.advancedFillText(text, originalText, x + width / 2, y, angleOrNull);
 	} else {
@@ -660,7 +660,7 @@ function resetCaret() {
 }
 
 var canvas;
-// Base node radius - will be scaled based on canvas size
+
 var baseNodeRadius = 30;
 var nodeRadius = baseNodeRadius;
 var nodes = [];
@@ -678,10 +678,10 @@ function drawUsing(c) {
 	c.save();
 	c.translate(0.5, 0.5);
 
-	// Scale line width based on canvas size
+	
 	const baseLineWidth = Math.max(1, canvas.width / 800);
 
-	// Draw nodes
+	
 	for(var i = 0; i < nodes.length; i++) {
 		c.lineWidth = baseLineWidth;
 		c.fillStyle = canvasState.fillColor;
@@ -689,14 +689,14 @@ function drawUsing(c) {
 		nodes[i].draw(c);
 	}
 
-	// Draw links
+	
 	for(var i = 0; i < links.length; i++) {
 		c.lineWidth = baseLineWidth;
 		c.fillStyle = c.strokeStyle = (links[i] == selectedObject) ? canvasState.accentColor : canvasState.strokeColor;
 		links[i].draw(c);
 	}
 
-	// Draw temporary links during creation
+	
 	if(currentLink != null) {
 		c.lineWidth = baseLineWidth;
 		c.fillStyle = c.strokeStyle = canvasState.strokeColor;
@@ -739,32 +739,32 @@ function snapNode(node) {
 	}
 }
 
-// Handle window resize for responsive canvas
+
 function resizeCanvas() {
 	if (!canvas) return;
 	
-	// Store current diagram state
+	
 	var tempNodes = nodes.slice(0);
 	var tempLinks = links.slice(0);
 	
-	// Get parent container dimensions
+	
 	const container = canvas.parentElement;
 	const containerWidth = container.clientWidth;
-	const containerHeight = Math.max(containerWidth * 0.6, 400); // Maintain aspect ratio with min height
+	const containerHeight = Math.max(containerWidth * 0.6, 400); 
 	
-	// Set canvas dimensions
+	
 	canvas.width = containerWidth;
 	canvas.height = containerHeight;
 	
-	// Scale node radius based on canvas size
+	
 	nodeRadius = Math.max(20, Math.min(baseNodeRadius, containerWidth / 20));
 	
-	// Redraw the canvas
+	
 	draw();
 }
 
-// Handle touch events for mobile devices
-// Detect double-tap on mobile
+
+
 let lastTap = 0;
 let touchTimer;
 let lastTouchX = 0;
@@ -782,13 +782,13 @@ function setupTouchEvents() {
 			});
 			canvas.dispatchEvent(mouseEvent);
 			
-			// Handle double-tap detection
+			
 			const currentTime = new Date().getTime();
 			const tapLength = currentTime - lastTap;
 			clearTimeout(touchTimer);
 			
 			if (tapLength < 500 && tapLength > 0) {
-				// Simulate double-click at this position
+				
 				const dblClickEvent = new MouseEvent('dblclick', {
 					clientX: touch.clientX,
 					clientY: touch.clientY
@@ -796,13 +796,13 @@ function setupTouchEvents() {
 				canvas.dispatchEvent(dblClickEvent);
 				e.preventDefault();
 			} else {
-				// Store current touch position for possible double-tap
+				
 				lastTouchX = touch.clientX;
 				lastTouchY = touch.clientY;
 				
-				// Set up timer for potential tap-and-hold action
+				
 				touchTimer = setTimeout(function() {
-					// Long press - could handle differently if needed
+					
 				}, 500);
 			}
 			
@@ -813,7 +813,7 @@ function setupTouchEvents() {
 	
 	canvas.addEventListener('touchmove', function(e) {
 		if (e.touches.length == 1) {
-			// Clear the timer on move to cancel any tap-and-hold action
+			
 			clearTimeout(touchTimer);
 			
 			var touch = e.touches[0];
@@ -837,18 +837,18 @@ function setupTouchEvents() {
 window.onload = function() {
 	canvas = document.getElementById('canvas');
 	
-	// Initialize canvas size
+	
 	resizeCanvas();
 	
-	// Add resize event listener
+	
 	window.addEventListener('resize', function() {
 		resizeCanvas();
 	});
 	
-	// Setup touch events for mobile
+	
 	setupTouchEvents();
 	
-	// Load any saved diagrams
+	
 	restoreBackup();
 	draw();
 
@@ -1044,9 +1044,9 @@ function output(text, format = 'text') {
 	var element = document.getElementById('output');
 	element.style.display = 'block';
 	
-	// For better formatted display, create a formatted code block with copy button
+	
 	if (format === 'latex' || format === 'svg') {
-		// Create wrapper div if it doesn't exist
+		
 		let wrapper = document.getElementById('output-wrapper');
 		if (!wrapper) {
 			wrapper = document.createElement('div');
@@ -1054,7 +1054,7 @@ function output(text, format = 'text') {
 			wrapper.className = 'code-wrapper';
 			element.parentNode.insertBefore(wrapper, element.nextSibling);
 			
-			// Style the wrapper
+			
 			wrapper.style.position = 'relative';
 			wrapper.style.marginTop = '10px';
 			wrapper.style.background = 'var(--secondary-bg)';
@@ -1065,7 +1065,7 @@ function output(text, format = 'text') {
 			wrapper.style.overflow = 'auto';
 		}
 		
-		// Create header with format indication and copy button
+		
 		let header = document.createElement('div');
 		header.className = 'code-header';
 		header.style.display = 'flex';
@@ -1075,7 +1075,7 @@ function output(text, format = 'text') {
 		header.style.borderBottom = '1px solid var(--border-color)';
 		
 		let formatLabel = document.createElement('span');
-		// Set the label based on the format
+		
 		formatLabel.textContent = format === 'latex' ? 'LaTeX Code' : 'SVG Code';
 		formatLabel.style.color = 'var(--accent-color)';
 		formatLabel.style.fontWeight = 'bold';
@@ -1088,7 +1088,7 @@ function output(text, format = 'text') {
 		copyBtn.style.fontSize = '0.9em';
 		
 		copyBtn.onclick = function() {
-			// Copy to clipboard
+			
 			navigator.clipboard.writeText(text)
 				.then(() => {
 					copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -1106,7 +1106,7 @@ function output(text, format = 'text') {
 		header.appendChild(formatLabel);
 		header.appendChild(copyBtn);
 		
-		// Create pre and code elements for syntax highlighting look
+		
 		let pre = document.createElement('pre');
 		pre.style.margin = '0';
 		pre.style.maxWidth = '100%';
@@ -1121,7 +1121,7 @@ function output(text, format = 'text') {
 		pre.style.wordBreak = 'break-all';
 		pre.textContent = text;
 		
-		// For SVG, add a preview option
+		
 		if (format === 'svg') {
 			let previewBtn = document.createElement('button');
 			previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
@@ -1131,7 +1131,7 @@ function output(text, format = 'text') {
 			previewBtn.style.fontSize = '0.9em';
 			
 			previewBtn.onclick = function() {
-				// Create a new window with the SVG content
+				
 				const win = window.open('', '_blank');
 				win.document.write(`
 					<!DOCTYPE html>
@@ -1155,19 +1155,19 @@ function output(text, format = 'text') {
 			header.appendChild(previewBtn);
 		}
 		
-		// Clear wrapper and add new elements
+		
 		wrapper.innerHTML = '';
 		wrapper.appendChild(header);
 		wrapper.appendChild(pre);
 		
-		// Hide the original textarea
+		
 		element.style.display = 'none';
 	} else {
-		// Show original textarea for other formats
+		
 		element.style.display = 'block';
 		element.value = text;
 		
-		// Hide wrapper if it exists
+		
 		const wrapper = document.getElementById('output-wrapper');
 		if (wrapper) {
 			wrapper.style.display = 'none';
@@ -1177,12 +1177,12 @@ function output(text, format = 'text') {
 	updateStatusMessage('Output generated');
 }
 
-// UI and state management functions
+
 function updateStatusMessage(message) {
 	var statusElement = document.getElementById('status-message');
 	if (statusElement) {
 		statusElement.textContent = message;
-		// Auto-reset after 3 seconds
+		
 		setTimeout(function() {
 			statusElement.textContent = 'Ready';
 		}, 3000);
@@ -1235,10 +1235,10 @@ function saveDiagram() {
 		})
 	};
 	
-	// Save to local storage for persistence
+	
 	localStorage.setItem('fsm-diagram', JSON.stringify(diagramData));
 	
-	// Could also send to server
+	
 	fetch('/save', {
 		method: 'POST',
 		headers: {
@@ -1263,7 +1263,7 @@ function loadDiagram(data) {
 	nodes = [];
 	links = [];
 	
-	// Create nodes
+	
 	if (data.nodes) {
 		data.nodes.forEach(function(nodeData) {
 			var node = new Node(nodeData.x, nodeData.y);
@@ -1273,7 +1273,7 @@ function loadDiagram(data) {
 		});
 	}
 	
-	// Create links
+	
 	if (data.links) {
 		data.links.forEach(function(linkData) {
 			var link;
@@ -1304,17 +1304,17 @@ function loadDiagram(data) {
 }
 
 function redrawCanvas(theme) {
-	// Update canvas colors based on theme
+	
 	canvasState.strokeColor = theme.text;
 	canvasState.fillColor = theme.canvas;
 	canvasState.textColor = theme.text;
 	canvasState.accentColor = theme.accent;
 	
-	// Redraw the canvas with new colors
+	
 	draw();
 }
 
-// Load saved diagram from local storage on startup
+
 document.addEventListener('DOMContentLoaded', function() {
 	try {
 		const savedDiagram = localStorage.getItem('fsm-diagram');
@@ -1333,7 +1333,7 @@ function saveAsPNG() {
 	selectedObject = oldSelectedObject;
 	var pngData = canvas.toDataURL('image/png');
 	
-	// Create a download link for the PNG
+	
 	const link = document.createElement('a');
 	link.href = pngData;
 	link.download = 'fsm-diagram.png';
@@ -1341,7 +1341,7 @@ function saveAsPNG() {
 	document.body.appendChild(link);
 	link.click();
 	
-	// Clean up the link element
+	
 	setTimeout(() => {
 		document.body.removeChild(link);
 		URL.revokeObjectURL(pngData);
@@ -1358,7 +1358,7 @@ function saveAsSVG() {
 	drawUsing(exporter);
 	selectedObject = oldSelectedObject;
 	var svgData = exporter.toSVG();
-	// Create a formatted SVG code block with copy button
+	
 	output(svgData, 'svg');
 }
 
@@ -1370,7 +1370,7 @@ function saveAsLaTeX() {
 	drawUsing(exporter);
 	selectedObject = oldSelectedObject;
 	var texData = exporter.toLaTeX();
-	// Use the 'latex' format for better display
+	
 	output(texData, 'latex');
 }
 
